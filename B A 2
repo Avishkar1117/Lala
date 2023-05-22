@@ -1,0 +1,109 @@
+import pandas as pd
+
+df = pd.read_csv('air_quality.csv')
+
+print('\n-------------------------- df --------------------------\n')
+
+print(df)
+
+# A. DATA CLEANING
+
+df = df[df['AQI'].notna()]
+
+print('\n-------------------------- df after data cleaning -------------------\n')
+
+print(df)
+
+ 
+
+# C. DATA TRANSFORMATION
+
+pm25=df['PM2.5'].mean(axis=0)
+
+pm10=df['PM10'].mean(axis=0)
+
+no=df['NO'].mean(axis=0)
+
+no2=df['NO2'].mean(axis=0)
+
+nox=df['NOx'].mean(axis=0)
+
+nh3=df['NH3'].mean(axis=0)
+
+co=df['CO'].mean(axis=0)
+
+so2=df['SO2'].mean(axis=0)
+
+o3=df['O3'].mean(axis=0)
+
+ben=df['Benzene'].mean(axis=0)
+
+tol=df['Toluene'].mean(axis=0)
+
+xyl=df['Xylene'].mean(axis=0)
+
+df['PM2.5'].fillna(pm25, inplace=True)
+
+df['PM10'].fillna(pm10, inplace=True)
+
+df['NO'].fillna(no, inplace=True)
+
+df['NO2'].fillna(no2, inplace=True)
+
+df['NOx'].fillna(nox, inplace=True)
+
+df['CO'].fillna(co, inplace=True)
+
+df['SO2'].fillna(so2, inplace=True)
+
+df['O3'].fillna(o3, inplace=True)
+
+df['Benzene'].fillna(ben, inplace=True)
+
+df['Toluene'].fillna(tol, inplace=True)
+
+df['Xylene'].fillna(xyl, inplace=True)
+
+df['NH3'].fillna(nh3, inplace=True)
+
+print('\n-------------------------- df after data transformation ---------------------\n')
+
+print(df.describe())
+
+# E. Data model building
+
+import numpy as np
+
+from sklearn.compose import ColumnTransformer
+
+from sklearn.preprocessing import OneHotEncoder
+
+from sklearn.model_selection import train_test_split
+
+from sklearn.linear_model import LinearRegression
+
+from sklearn.metrics import mean_squared_error
+
+X=df[['City', 'PM2.5', 'PM10', 'NO', 'NO2', 'NOx', 'CO', 'SO2', 'Benzene', 'Toluene', 
+
+'Xylene']].values
+
+Y=df[['AQI']].values
+
+ct = ColumnTransformer(transformers=[('encoder', OneHotEncoder(), [0])], 
+
+remainder='passthrough')
+
+X = np.array(ct.fit_transform(X))
+
+X_train, X_test, Y_train, Y_test=train_test_split(X, Y, test_size=0.2, random_state=2)
+
+lr = LinearRegression()
+
+lr.fit(X_train, Y_train)
+
+Y_pred = lr.predict(X_test)
+
+print('\n-------------------------- mse of the model --------------------------\n')
+
+print('mse =', mean_squared_error(Y_test, Y_pred, squared=False))
